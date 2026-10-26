@@ -8,6 +8,29 @@ logs/
 *.log
 .DS_Store
 Thumbs.db
-docs/_generated/
-docs/pagecheck/
-docs/deckcheck/
+
+# Not required to run the app
+docs/
+*.docx
+*.pptx
+*.pdf
+
+# Report / PPT / measurement generators
+scripts/build_report.py
+scripts/build_final_report.py
+scripts/build_cbdp_report.py
+scripts/build_deck.py
+scripts/docx_kit.py
+scripts/pptx_kit.py
+scripts/docgen_helpers.py
+scripts/make_diagrams.py
+scripts/collect_measurements.py
+scripts/measure_join.py
+scripts/benchmark_report.py
+scripts/audit_layout.py
+scripts/page_map.ps1
+scripts/preview_deck.ps1
+scripts/preview_pages.ps1
+scripts/render_pages.py
+scripts/remeasure.ps1
+scripts/pack-for-friend.ps1
