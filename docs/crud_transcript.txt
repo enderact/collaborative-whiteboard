@@ -1,0 +1,46 @@
+server: http://127.0.0.1:8052   instance: wb-V   database: whiteboard
+
+CREATE
+  [ok]   POST /api/rooms
+        room code: JA3JG3
+  [ok]   POST stroke (pen) - seq=1
+  [ok]   POST stroke (rect) - seq=2
+  [ok]   POST stroke (text) - seq=3
+  [ok]   POST stroke (eraser) - seq=4
+  [ok]   one collection holds several document shapes - 3 distinct field sets
+
+READ
+  [ok]   GET /api/rooms/{code} - totalStrokes=4
+  [ok]   GET strokes returns them in sequence order - seqs=[1, 2, 3, 4]
+  [ok]   GET /api/strokes/{id}
+  [ok]   GET strokes?afterSeq= returns only the tail - 2 of 4
+
+UPDATE
+  [ok]   PATCH room name and background
+  [ok]   PATCH stroke style in place
+  [ok]   POST stroke move mutates nested geometry - geometry={'x': 125.0, 'y': 85.0, 'w': 220.0, 'h': 140.0}
+
+SOFT DELETE (undo / redo)
+  [ok]   undo flips active to false - seq=4
+  [ok]   undone stroke is hidden from the default read
+  [ok]   undone stroke is still on disk
+  [ok]   undo is scoped per user, so it cannot touch another user's work - nothing left to undo for this user
+  [ok]   redo reactivates it
+  [ok]   concurrent undos claim different documents - claimed ['6ab1550e64d773ccafe4f5c9', '6ab1550e64d773ccafe4f5c8']
+
+AGGREGATION and INDEXES
+  [ok]   aggregation returns rows with its pipeline - 1 rows in 2.88 ms
+  [ok]   $facet returns several result sets at once - facets=['byTool', 'recent', 'topContributors', 'totals']
+  [ok]   $lookup joins rooms to strokes
+  [ok]   explain reports an index scan - IXSCAN on ix_stroke_replay, docsExamined=4
+  [ok]   every planned stroke index exists - 5 indexes
+
+HARD DELETE
+  [ok]   compaction turns soft deletes into real deletions - purged 2, 4 -> 2
+  [ok]   DELETE /api/strokes/{id}
+  [ok]   deleted stroke is really gone
+  [ok]   DELETE room cascades to its strokes and snapshots - strokes=1, snapshots=0
+  [ok]   room is gone
+  [ok]   its strokes are gone too
+
+all checks passed

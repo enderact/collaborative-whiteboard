@@ -1,0 +1,262 @@
+{
+  "room": "LNCSJ5",
+  "benchmark": {
+    "room": "LNCSJ5",
+    "strokesInRoom": 48000,
+    "indexesDroppedForTest": [
+      "rooms.ix_room_activity",
+      "strokes.ix_stroke_replay",
+      "strokes.ix_stroke_undo",
+      "strokes.ix_stroke_tool",
+      "strokes.ix_stroke_time",
+      "snapshots.ix_snapshot_latest"
+    ],
+    "comparison": {
+      "undo_lookup": {
+        "why": "Behind every undo: the newest active stroke for one user. Sorted and limited to one document, so the index either seeks straight to it or the server sorts the whole room.",
+        "withoutIndex": {
+          "ms": 70.06,
+          "scanType": "COLLSCAN",
+          "docsExamined": 80019,
+          "error": null
+        },
+        "withIndex": {
+          "ms": 3.04,
+          "scanType": "IXSCAN",
+          "indexName": "ix_stroke_undo",
+          "docsExamined": 1,
+          "error": null
+        },
+        "speedup": 23.0,
+        "docsExaminedReduction": 80018,
+        "docsReturned": 1
+      },
+      "incremental_join": {
+        "why": "Joining a room that already has a snapshot: only strokes newer than the snapshot sequence are replayed.",
+        "withoutIndex": {
+          "ms": 106.03,
+          "scanType": "COLLSCAN",
+          "docsExamined": 80019,
+          "error": null
+        },
+        "withIndex": {
+          "ms": 26.31,
+          "scanType": "IXSCAN",
+          "indexName": "ix_stroke_replay",
+          "docsExamined": 500,
+          "error": null
+        },
+        "speedup": 4.0,
+        "docsExaminedReduction": 79519,
+        "docsReturned": 438
+      },
+      "history_metadata": {
+        "why": "Ordered pass over the whole room reading metadata only. The point arrays are projected away, so this isolates the cost of sorting.",
+        "withoutIndex": {
+          "ms": 344.21,
+          "scanType": "COLLSCAN",
+          "docsExamined": 80019,
+          "error": null
+        },
+        "withIndex": {
+          "ms": 236.52,
+          "scanType": "IXSCAN",
+          "indexName": "ix_stroke_replay",
+          "docsExamined": 48000,
+          "error": null
+        },
+        "speedup": 1.5,
+        "docsExaminedReduction": 32019,
+        "docsReturned": 42672
+      },
+      "tool_count": {
+        "why": "How many pen strokes exist in this room. A count never needs the documents themselves, so the index answers it outright.",
+        "withoutIndex": {
+          "ms": 57.55,
+          "scanType": "COLLSCAN",
+          "docsExamined": 80019,
+          "error": null
+        },
+        "withIndex": {
+          "ms": 14.0,
+          "scanType": "unknown",
+          "indexName": null,
+          "docsExamined": 0,
+          "error": null
+        },
+        "speedup": 4.1,
+        "docsExaminedReduction": 80019,
+        "docsReturned": 32598
+      },
+      "covered_query": {
+        "why": "Every field requested is already in ix_stroke_tool, so the query is covered: MongoDB answers it from index keys and examines zero documents.",
+        "withoutIndex": {
+          "ms": 229.07,
+          "scanType": "COLLSCAN",
+          "docsExamined": 80019,
+          "error": null
+        },
+        "withIndex": {
+          "ms": 147.98,
+          "scanType": "IXSCAN",
+          "indexName": "ix_stroke_tool",
+          "docsExamined": 0,
+          "error": null
+        },
+        "speedup": 1.5,
+        "docsExaminedReduction": 80019,
+        "docsReturned": 32598
+      }
+    }
+  },
+  "pipelineTimings": [
+    {
+      "key": "contributors",
+      "title": "Contribution breakdown by user",
+      "stages": [
+        "$match",
+        "$group",
+        "$project",
+        "$sort"
+      ],
+      "elapsedMs": 185.34,
+      "resultCount": 5
+    },
+    {
+      "key": "tool_usage",
+      "title": "Tool usage mix",
+      "stages": [
+        "$match",
+        "$group",
+        "$project",
+        "$sort"
+      ],
+      "elapsedMs": 157.23,
+      "resultCount": 6
+    },
+    {
+      "key": "activity",
+      "title": "Drawing activity over time",
+      "stages": [
+        "$match",
+        "$group",
+        "$project",
+        "$sort",
+        "$limit"
+      ],
+      "elapsedMs": 194.1,
+      "resultCount": 109
+    },
+    {
+      "key": "complexity",
+      "title": "Stroke complexity distribution",
+      "stages": [
+        "$match",
+        "$bucket",
+        "$project"
+      ],
+      "elapsedMs": 173.96,
+      "resultCount": 6
+    },
+    {
+      "key": "palette",
+      "title": "Colour palette in use",
+      "stages": [
+        "$match",
+        "$group",
+        "$project",
+        "$sort",
+        "$limit"
+      ],
+      "elapsedMs": 232.88,
+      "resultCount": 8
+    },
+    {
+      "key": "bounds",
+      "title": "Content bounding box",
+      "stages": [
+        "$match",
+        "$group",
+        "$project"
+      ],
+      "elapsedMs": 202.28,
+      "resultCount": 1
+    },
+    {
+      "key": "leaderboard",
+      "title": "Room leaderboard (joined)",
+      "stages": [
+        "$match",
+        "$lookup",
+        "$set",
+        "$project",
+        "$sort",
+        "$limit"
+      ],
+      "elapsedMs": 253.6,
+      "resultCount": 7
+    },
+    {
+      "key": "dashboard",
+      "title": "Single-request dashboard",
+      "stages": [
+        "$match",
+        "$facet"
+      ],
+      "elapsedMs": 544.22,
+      "resultCount": 1
+    },
+    {
+      "key": "storage",
+      "title": "Storage footprint by tool",
+      "stages": [
+        "$match",
+        "$set",
+        "$group",
+        "$project",
+        "$sort"
+      ],
+      "elapsedMs": 198.13,
+      "resultCount": 6
+    }
+  ],
+  "stats": {
+    "rooms": {
+      "documents": 7,
+      "dataSizeKB": 4.4,
+      "storageSizeKB": 36.0,
+      "indexSizeKB": 92.0,
+      "avgDocSizeBytes": 645,
+      "indexSizes": {
+        "_id_": 36.0,
+        "ix_room_code": 36.0,
+        "ix_room_activity": 20.0
+      }
+    },
+    "strokes": {
+      "documents": 80019,
+      "dataSizeKB": 123222.0,
+      "storageSizeKB": 166320.0,
+      "indexSizeKB": 9936.0,
+      "avgDocSizeBytes": 1576,
+      "indexSizes": {
+        "_id_": 7140.0,
+        "ix_stroke_replay": 716.0,
+        "ix_stroke_undo": 776.0,
+        "ix_stroke_tool": 512.0,
+        "ix_stroke_time": 792.0
+      }
+    },
+    "snapshots": {
+      "documents": 0,
+      "dataSizeKB": 0.0,
+      "storageSizeKB": 4.0,
+      "indexSizeKB": 8.0,
+      "avgDocSizeBytes": 0,
+      "indexSizes": {
+        "_id_": 4.0,
+        "ix_snapshot_latest": 4.0
+      }
+    }
+  }
+}

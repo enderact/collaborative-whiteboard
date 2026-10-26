@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.demo-pids
+logs/
+*.log
+.DS_Store
+Thumbs.db
+docs/_generated/
+docs/pagecheck/
+docs/deckcheck/

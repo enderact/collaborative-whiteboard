@@ -1,0 +1,2126 @@
+{
+  "generatedAt": "2026-09-21T16:58:06.512688+00:00",
+  "room": "LNCSJ5",
+  "roomCount": 8,
+  "collectionStats": {
+    "rooms": {
+      "documents": 8,
+      "dataSizeMB": 0.0,
+      "storageSizeMB": 0.04,
+      "indexSizeMB": 0.11,
+      "avgDocBytes": 566,
+      "indexSizesKB": {
+        "_id_": 36.0,
+        "ix_room_code": 36.0,
+        "ix_room_activity": 36.0
+      }
+    },
+    "strokes": {
+      "documents": 80019,
+      "dataSizeMB": 120.33,
+      "storageSizeMB": 162.42,
+      "indexSizeMB": 9.79,
+      "avgDocBytes": 1576,
+      "indexSizesKB": {
+        "_id_": 7140.0,
+        "ix_stroke_replay": 740.0,
+        "ix_stroke_undo": 796.0,
+        "ix_stroke_tool": 536.0,
+        "ix_stroke_time": 812.0
+      }
+    },
+    "snapshots": {
+      "documents": 5,
+      "dataSizeMB": 13.78,
+      "storageSizeMB": 16.52,
+      "indexSizeMB": 0.04,
+      "avgDocBytes": 2889103,
+      "indexSizesKB": {
+        "_id_": 20.0,
+        "ix_snapshot_latest": 20.0
+      }
+    }
+  },
+  "indexes": {
+    "planned": [
+      {
+        "collection": "rooms",
+        "name": "ix_room_code",
+        "keys": {
+          "code": 1
+        },
+        "unique": true,
+        "rationale": "Every join is a lookup by short room code; unique prevents duplicate codes."
+      },
+      {
+        "collection": "rooms",
+        "name": "ix_room_activity",
+        "keys": {
+          "lastActivityAt": -1
+        },
+        "unique": false,
+        "rationale": "Powers the 'recent rooms' list without scanning the whole collection."
+      },
+      {
+        "collection": "strokes",
+        "name": "ix_stroke_replay",
+        "keys": {
+          "roomId": 1,
+          "seq": 1
+        },
+        "unique": false,
+        "rationale": "The hot path: replay a room's strokes in order. Covers range queries on seq for incremental loading after a snapshot."
+      },
+      {
+        "collection": "strokes",
+        "name": "ix_stroke_undo",
+        "keys": {
+          "roomId": 1,
+          "userId": 1,
+          "active": 1,
+          "seq": -1
+        },
+        "unique": false,
+        "rationale": "Per-user undo claims the newest active stroke belonging to that user. Descending seq lets the atomic findOneAndUpdate stop at the first hit."
+      },
+      {
+        "collection": "strokes",
+        "name": "ix_stroke_tool",
+        "keys": {
+          "roomId": 1,
+          "tool": 1
+        },
+        "unique": false,
+        "rationale": "Supports the tool-distribution aggregation without a collection scan."
+      },
+      {
+        "collection": "strokes",
+        "name": "ix_stroke_time",
+        "keys": {
+          "roomId": 1,
+          "createdAt": 1
+        },
+        "unique": false,
+        "rationale": "Supports the time-bucketed activity aggregation ($dateTrunc grouping)."
+      },
+      {
+        "collection": "snapshots",
+        "name": "ix_snapshot_latest",
+        "keys": {
+          "roomId": 1,
+          "upToSeq": -1
+        },
+        "unique": false,
+        "rationale": "Fetches the newest snapshot for a room in a single index seek."
+      }
+    ],
+    "live": {
+      "rooms": [
+        {
+          "v": 2,
+          "key": {
+            "id": 1
+          },
+          "name": "_id_"
+        },
+        {
+          "v": 2,
+          "key": {
+            "code": 1
+          },
+          "name": "ix_room_code",
+          "unique": true
+        },
+        {
+          "v": 2,
+          "key": {
+            "lastActivityAt": -1
+          },
+          "name": "ix_room_activity"
+        }
+      ],
+      "strokes": [
+        {
+          "v": 2,
+          "key": {
+            "id": 1
+          },
+          "name": "_id_"
+        },
+        {
+          "v": 2,
+          "key": {
+            "roomId": 1,
+            "seq": 1
+          },
+          "name": "ix_stroke_replay"
+        },
+        {
+          "v": 2,
+          "key": {
+            "roomId": 1,
+            "userId": 1,
+            "active": 1,
+            "seq": -1
+          },
+          "name": "ix_stroke_undo"
+        },
+        {
+          "v": 2,
+          "key": {
+            "roomId": 1,
+            "tool": 1
+          },
+          "name": "ix_stroke_tool"
+        },
+        {
+          "v": 2,
+          "key": {
+            "roomId": 1,
+            "createdAt": 1
+          },
+          "name": "ix_stroke_time"
+        }
+      ],
+      "snapshots": [
+        {
+          "v": 2,
+          "key": {
+            "id": 1
+          },
+          "name": "_id_"
+        },
+        {
+          "v": 2,
+          "key": {
+            "roomId": 1,
+            "upToSeq": -1
+          },
+          "name": "ix_snapshot_latest"
+        }
+      ]
+    }
+  },
+  "samples": {
+    "rooms": {
+      "id": "6ab1462b336665eb541e4582",
+      "code": "LNCSJ5",
+      "name": "Seeded board 1",
+      "background": "#ffffff",
+      "settings": {
+        "gridVisible": true,
+        "width": 1920,
+        "height": 1080
+      },
+      "participants": [
+        {
+          "userId": "seed_user_1",
+          "userName": "Devesh",
+          "color": "#d97706",
+          "lastSeenAt": "2026-09-21T14:58:51.625000+00:00"
+        },
+        {
+          "userId": "seed_user_2",
+          "userName": "Prakrit",
+          "color": "#111827",
+          "lastSeenAt": "2026-09-21T14:58:51.636000+00:00"
+        },
+        {
+          "userId": "seed_user_3",
+          "userName": "Lakshya",
+          "color": "#d97706",
+          "lastSeenAt": "2026-09-21T14:58:51.646000+00:00"
+        },
+        {
+          "userId": "seed_user_4",
+          "userName": "Aarav",
+          "color": "#0891b2",
+          "lastSeenAt": "2026-09-21T14:58:51.656000+00:00"
+        },
+        {
+          "userId": "seed_user_5",
+          "userName": "Meera",
+          "color": "#db2777",
+          "lastSeenAt": "2026-09-21T14:58:51.664000+00:00"
+        }
+      ],
+      "strokeCount": 48000,
+      "createdBy": "seed_user_1",
+      "createdAt": "2026-09-21T14:58:51.618000+00:00",
+      "updatedAt": "2026-09-21T14:58:51.618000+00:00",
+      "lastActivityAt": "2026-09-21T16:12:18.885000+00:00",
+      "isArchived": false
+    },
+    "strokes": {
+      "pen": {
+        "id": "6ab1462b336665eb541e4583",
+        "roomId": "6ab1462b336665eb541e4582",
+        "seq": 1,
+        "userId": "seed_user_1",
+        "userName": "Devesh",
+        "tool": "pen",
+        "style": {
+          "color": "#059669",
+          "width": 6.4,
+          "opacity": 1.0,
+          "blend": "source-over"
+        },
+        "active": true,
+        "undoneAt": null,
+        "undoneBy": null,
+        "clientMsgId": null,
+        "createdAt": "2026-09-21T11:28:32.932000+00:00",
+        "updatedAt": "2026-09-21T11:28:32.932000+00:00",
+        "points": [
+          {
+            "x": 323.66,
+            "y": 294.22,
+            "p": 0.67
+          },
+          {
+            "x": 325.92,
+            "y": 293.95,
+            "p": 0.43
+          },
+          {
+            "x": 326.47,
+            "y": 294.99,
+            "p": 0.55
+          },
+          "... 145 more points ..."
+        ],
+        "pointCount": 148,
+        "bbox": {
+          "minX": 275.85,
+          "minY": 237.99,
+          "maxX": 326.47,
+          "maxY": 295.94
+        }
+      },
+      "rect": {
+        "id": "6ab1462b336665eb541e4590",
+        "roomId": "6ab1462b336665eb541e4582",
+        "seq": 14,
+        "userId": "seed_user_1",
+        "userName": "Devesh",
+        "tool": "rect",
+        "style": {
+          "color": "#dc2626",
+          "width": 8.3,
+          "opacity": 1.0,
+          "blend": "source-over"
+        },
+        "active": true,
+        "undoneAt": null,
+        "undoneBy": null,
+        "clientMsgId": null,
+        "createdAt": "2026-09-21T11:28:34.687000+00:00",
+        "updatedAt": "2026-09-21T11:28:34.687000+00:00",
+        "geometry": {
+          "x": 798.1,
+          "y": 159.31,
+          "w": 417.46,
+          "h": -191.07
+        },
+        "bbox": {
+          "minX": 798.1,
+          "minY": -31.76,
+          "maxX": 1215.56,
+          "maxY": 159.31
+        }
+      },
+      "text": {
+        "id": "6ab1462b336665eb541e458a",
+        "roomId": "6ab1462b336665eb541e4582",
+        "seq": 8,
+        "userId": "seed_user_3",
+        "userName": "Lakshya",
+        "tool": "text",
+        "style": {
+          "color": "#059669",
+          "width": 10.5,
+          "opacity": 1.0,
+          "blend": "source-over"
+        },
+        "active": true,
+        "undoneAt": null,
+        "undoneBy": null,
+        "clientMsgId": null,
+        "createdAt": "2026-09-21T11:28:33.877000+00:00",
+        "updatedAt": "2026-09-21T11:28:33.877000+00:00",
+        "points": [
+          {
+            "x": 1433.27,
+            "y": 793.04,
+            "p": 0.5
+          }
+        ],
+        "pointCount": 1,
+        "text": "seq TTL",
+        "font": "20px Inter, sans-serif",
+        "bbox": {
+          "minX": 1433.2713780672282,
+          "minY": 793.0393248172312,
+          "maxX": 1553.2713780672282,
+          "maxY": 819.0393248172312
+        }
+      },
+      "eraser": {
+        "id": "6ab1462b336665eb541e458f",
+        "roomId": "6ab1462b336665eb541e4582",
+        "seq": 13,
+        "userId": "seed_user_1",
+        "userName": "Devesh",
+        "tool": "eraser",
+        "style": {
+          "color": "#000000",
+          "width": 28.0,
+          "opacity": 1.0,
+          "blend": "destination-out"
+        },
+        "active": true,
+        "undoneAt": null,
+        "undoneBy": null,
+        "clientMsgId": null,
+        "createdAt": "2026-09-21T11:28:34.552000+00:00",
+        "updatedAt": "2026-09-21T11:28:34.552000+00:00",
+        "points": [
+          {
+            "x": 351.95,
+            "y": 620.88,
+            "p": 0.6
+          },
+          {
+            "x": 338.76,
+            "y": 617.91,
+            "p": 0.59
+          },
+          {
+            "x": 329.08,
+            "y": 615.84,
+            "p": 0.25
+          },
+          "... 9 more points ..."
+        ],
+        "pointCount": 12,
+        "bbox": {
+          "minX": 249.16,
+          "minY": 552.82,
+          "maxX": 351.95,
+          "maxY": 620.88
+        }
+      }
+    },
+    "snapshots": {
+      "id": "6ab14cb13ab4d43d8179f970",
+      "roomId": "6ab1462b336665eb541e4582",
+      "upToSeq": 48000,
+      "strokeCount": 42672,
+      "bytes": 2913246,
+      "createdAt": "2026-09-21T15:26:41.947000+00:00",
+      "image": "<data:image/png;base64 ... 2,913,246 characters ...>"
+    }
+  },
+  "joinCost": [
+    {
+      "code": "LNCSJ5",
+      "strokes": 42672,
+      "maxSeq": 48000,
+      "fullQueryMs": 4042.2,
+      "fullSerialiseMs": 8803.8,
+      "fullMB": 66.04,
+      "tailStrokes": 438,
+      "tailQueryMs": 188.9,
+      "tailMB": 0.674,
+      "snapshotKB": 2845.0,
+      "snapshotMeasured": true,
+      "withSnapshotMB": 3.45
+    },
+    {
+      "code": "S36UAR",
+      "strokes": 7182,
+      "maxSeq": 8000,
+      "fullQueryMs": 573.8,
+      "fullSerialiseMs": 1270.9,
+      "fullMB": 11.08,
+      "tailStrokes": 455,
+      "tailQueryMs": 31.4,
+      "tailMB": 0.732,
+      "snapshotKB": 2793.9,
+      "snapshotMeasured": true,
+      "withSnapshotMB": 3.46
+    },
+    {
+      "code": "K9KE5J",
+      "strokes": 7125,
+      "maxSeq": 8000,
+      "fullQueryMs": 641.4,
+      "fullSerialiseMs": 1457.4,
+      "fullMB": 11.29,
+      "tailStrokes": 439,
+      "tailQueryMs": 65.6,
+      "tailMB": 0.746,
+      "snapshotKB": 2888.8,
+      "snapshotMeasured": true,
+      "withSnapshotMB": 3.57
+    },
+    {
+      "code": "TEJWCQ",
+      "strokes": 7134,
+      "maxSeq": 8000,
+      "fullQueryMs": 704.6,
+      "fullSerialiseMs": 1473.7,
+      "fullMB": 11.35,
+      "tailStrokes": 447,
+      "tailQueryMs": 32.2,
+      "tailMB": 0.734,
+      "snapshotKB": 2795.5,
+      "snapshotMeasured": true,
+      "withSnapshotMB": 3.46
+    },
+    {
+      "code": "SFBFLQ",
+      "strokes": 7188,
+      "maxSeq": 8000,
+      "fullQueryMs": 545.1,
+      "fullSerialiseMs": 1430.4,
+      "fullMB": 11.11,
+      "tailStrokes": 447,
+      "tailQueryMs": 31.3,
+      "tailMB": 0.706,
+      "snapshotKB": 2783.3,
+      "snapshotMeasured": true,
+      "withSnapshotMB": 3.42
+    },
+    {
+      "code": "FLPVGJ",
+      "strokes": 10,
+      "maxSeq": 10,
+      "fullQueryMs": 4.6,
+      "fullSerialiseMs": 1.5,
+      "fullMB": 0.01,
+      "tailStrokes": 10,
+      "tailQueryMs": 3.6,
+      "tailMB": 0.012,
+      "snapshotKB": 180.0,
+      "snapshotMeasured": false,
+      "withSnapshotMB": 0.19
+    },
+    {
+      "code": "49C5NL",
+      "strokes": 7,
+      "maxSeq": 9,
+      "fullQueryMs": 3.2,
+      "fullSerialiseMs": 1.3,
+      "fullMB": 0.01,
+      "tailStrokes": 7,
+      "tailQueryMs": 3.5,
+      "tailMB": 0.009,
+      "snapshotKB": 180.0,
+      "snapshotMeasured": false,
+      "withSnapshotMB": 0.18
+    },
+    {
+      "code": "SNVJVW",
+      "strokes": 0,
+      "maxSeq": 0,
+      "fullQueryMs": 2.5,
+      "fullSerialiseMs": 0.0,
+      "fullMB": 0.0,
+      "tailStrokes": 0,
+      "tailQueryMs": 2.2,
+      "tailMB": 0.0,
+      "snapshotKB": 180.0,
+      "snapshotMeasured": false,
+      "withSnapshotMB": 0.18
+    }
+  ],
+  "analytics": {
+    "contributors": {
+      "meta": {
+        "key": "contributors",
+        "title": "Contribution breakdown by user",
+        "question": "Who drew how much in this room, and how often did they undo?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$group",
+          "$project",
+          "$sort"
+        ],
+        "chart": "table",
+        "notes": "Uses $cond inside $group to count active and undone strokes in a single pass instead of issuing two queries.",
+        "tags": [
+          "group",
+          "conditional"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582"
+          }
+        },
+        {
+          "$group": {
+            "id": {
+              "userId": "$userId",
+              "userName": "$userName"
+            },
+            "totalStrokes": {
+              "$sum": 1
+            },
+            "activeStrokes": {
+              "$sum": {
+                "$cond": [
+                  "$active",
+                  1,
+                  0
+                ]
+              }
+            },
+            "undoneStrokes": {
+              "$sum": {
+                "$cond": [
+                  "$active",
+                  0,
+                  1
+                ]
+              }
+            },
+            "totalPoints": {
+              "$sum": {
+                "$ifNull": [
+                  "$pointCount",
+                  0
+                ]
+              }
+            },
+            "toolsUsed": {
+              "$addToSet": "$tool"
+            },
+            "firstStrokeAt": {
+              "$min": "$createdAt"
+            },
+            "lastStrokeAt": {
+              "$max": "$createdAt"
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "userId": "$_id.userId",
+            "userName": "$_id.userName",
+            "totalStrokes": 1,
+            "activeStrokes": 1,
+            "undoneStrokes": 1,
+            "totalPoints": 1,
+            "toolsUsed": 1,
+            "avgPointsPerStroke": {
+              "$round": [
+                {
+                  "$divide": [
+                    "$totalPoints",
+                    {
+                      "$max": [
+                        "$totalStrokes",
+                        1
+                      ]
+                    }
+                  ]
+                },
+                1
+              ]
+            },
+            "undoRatePct": {
+              "$round": [
+                {
+                  "$multiply": [
+                    {
+                      "$divide": [
+                        "$undoneStrokes",
+                        {
+                          "$max": [
+                            "$totalStrokes",
+                            1
+                          ]
+                        }
+                      ]
+                    },
+                    100
+                  ]
+                },
+                1
+              ]
+            },
+            "activeSeconds": {
+              "$round": [
+                {
+                  "$divide": [
+                    {
+                      "$subtract": [
+                        "$lastStrokeAt",
+                        "$firstStrokeAt"
+                      ]
+                    },
+                    1000
+                  ]
+                },
+                0
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "totalStrokes": -1
+          }
+        }
+      ],
+      "elapsedMs": 351.33,
+      "resultCount": 5,
+      "results": [
+        {
+          "totalStrokes": 19263,
+          "activeStrokes": 17086,
+          "undoneStrokes": 2177,
+          "totalPoints": 545286,
+          "toolsUsed": [
+            "eraser",
+            "rect",
+            "line",
+            "text",
+            "ellipse",
+            "pen"
+          ],
+          "userId": "seed_user_1",
+          "userName": "Devesh",
+          "avgPointsPerStroke": 28.3,
+          "undoRatePct": 11.3,
+          "activeSeconds": 6480.0
+        },
+        {
+          "totalStrokes": 12807,
+          "activeStrokes": 11393,
+          "undoneStrokes": 1414,
+          "totalPoints": 366520,
+          "toolsUsed": [
+            "pen",
+            "ellipse",
+            "eraser",
+            "line",
+            "text",
+            "rect"
+          ],
+          "userId": "seed_user_2",
+          "userName": "Prakrit",
+          "avgPointsPerStroke": 28.6,
+          "undoRatePct": 11.0,
+          "activeSeconds": 6479.0
+        },
+        {
+          "totalStrokes": 9502,
+          "activeStrokes": 8474,
+          "undoneStrokes": 1028,
+          "totalPoints": 268634,
+          "toolsUsed": [
+            "pen",
+            "text",
+            "ellipse",
+            "eraser",
+            "line",
+            "rect"
+          ],
+          "userId": "seed_user_3",
+          "userName": "Lakshya",
+          "avgPointsPerStroke": 28.3,
+          "undoRatePct": 10.8,
+          "activeSeconds": 6479.0
+        },
+        {
+          "totalStrokes": 3269,
+          "activeStrokes": 2920,
+          "undoneStrokes": 349,
+          "totalPoints": 91284,
+          "toolsUsed": [
+            "pen",
+            "ellipse",
+            "eraser",
+            "rect",
+            "line",
+            "text"
+          ],
+          "userId": "seed_user_5",
+          "userName": "Meera",
+          "avgPointsPerStroke": 27.9,
+          "undoRatePct": 10.7,
+          "activeSeconds": 6478.0
+        },
+        {
+          "totalStrokes": 3159,
+          "activeStrokes": 2799,
+          "undoneStrokes": 360,
+          "totalPoints": 90773,
+          "toolsUsed": [
+            "line",
+            "eraser",
+            "ellipse",
+            "pen",
+            "rect",
+            "text"
+          ],
+          "userId": "seed_user_4",
+          "userName": "Aarav",
+          "avgPointsPerStroke": 28.7,
+          "undoRatePct": 11.4,
+          "activeSeconds": 6479.0
+        }
+      ]
+    },
+    "tool_usage": {
+      "meta": {
+        "key": "tool_usage",
+        "title": "Tool usage mix",
+        "question": "Which tools dominate, and how complex is a typical stroke for each?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$group",
+          "$project",
+          "$sort"
+        ],
+        "chart": "bar",
+        "notes": "$addToSet collects the distinct palette per tool; supported by the ix_stroke_tool index.",
+        "tags": [
+          "group",
+          "set"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582"
+          }
+        },
+        {
+          "$group": {
+            "id": "$tool",
+            "count": {
+              "$sum": 1
+            },
+            "avgPoints": {
+              "$avg": {
+                "$ifNull": [
+                  "$pointCount",
+                  0
+                ]
+              }
+            },
+            "avgWidth": {
+              "$avg": "$style.width"
+            },
+            "distinctColors": {
+              "$addToSet": "$style.color"
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "tool": "$_id",
+            "count": 1,
+            "avgPoints": {
+              "$round": [
+                "$avgPoints",
+                1
+              ]
+            },
+            "avgWidth": {
+              "$round": [
+                "$avgWidth",
+                2
+              ]
+            },
+            "colorCount": {
+              "$size": "$distinctColors"
+            }
+          }
+        },
+        {
+          "$sort": {
+            "count": -1
+          }
+        }
+      ],
+      "elapsedMs": 165.72,
+      "resultCount": 6,
+      "results": [
+        {
+          "count": 32598,
+          "tool": "pen",
+          "avgPoints": 37.0,
+          "avgWidth": 6.77,
+          "colorCount": 8
+        },
+        {
+          "count": 4272,
+          "tool": "eraser",
+          "avgPoints": 36.6,
+          "avgWidth": 24.08,
+          "colorCount": 1
+        },
+        {
+          "count": 3898,
+          "tool": "rect",
+          "avgPoints": 0.0,
+          "avgWidth": 6.77,
+          "colorCount": 8
+        },
+        {
+          "count": 3341,
+          "tool": "ellipse",
+          "avgPoints": 0.0,
+          "avgWidth": 6.69,
+          "colorCount": 8
+        },
+        {
+          "count": 2906,
+          "tool": "line",
+          "avgPoints": 0.0,
+          "avgWidth": 6.66,
+          "colorCount": 8
+        },
+        {
+          "count": 985,
+          "tool": "text",
+          "avgPoints": 1.0,
+          "avgWidth": 6.75,
+          "colorCount": 8
+        }
+      ]
+    },
+    "activity": {
+      "meta": {
+        "key": "activity",
+        "title": "Drawing activity over time",
+        "question": "How did drawing intensity vary minute by minute?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$group",
+          "$project",
+          "$sort",
+          "$limit"
+        ],
+        "chart": "line",
+        "notes": "$dateTrunc buckets timestamps server-side so no raw timestamps cross the wire.",
+        "tags": [
+          "time-series",
+          "group"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582"
+          }
+        },
+        {
+          "$group": {
+            "id": {
+              "$dateTrunc": {
+                "date": "$createdAt",
+                "unit": "minute",
+                "binSize": 1
+              }
+            },
+            "strokes": {
+              "$sum": 1
+            },
+            "points": {
+              "$sum": {
+                "$ifNull": [
+                  "$pointCount",
+                  0
+                ]
+              }
+            },
+            "contributors": {
+              "$addToSet": "$userId"
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "bucket": "$_id",
+            "strokes": 1,
+            "points": 1,
+            "contributorCount": {
+              "$size": "$contributors"
+            }
+          }
+        },
+        {
+          "$sort": {
+            "bucket": 1
+          }
+        },
+        {
+          "$limit": 240
+        }
+      ],
+      "elapsedMs": 158.99,
+      "resultCount": 109,
+      "results": [
+        {
+          "strokes": 201,
+          "points": 5672,
+          "bucket": "2026-09-21T11:28:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 12634,
+          "bucket": "2026-09-21T11:29:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 13829,
+          "bucket": "2026-09-21T11:30:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 11857,
+          "bucket": "2026-09-21T11:31:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 13499,
+          "bucket": "2026-09-21T11:32:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 13405,
+          "bucket": "2026-09-21T11:33:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 12704,
+          "bucket": "2026-09-21T11:34:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 13817,
+          "bucket": "2026-09-21T11:35:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 13377,
+          "bucket": "2026-09-21T11:36:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 11756,
+          "bucket": "2026-09-21T11:37:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 11060,
+          "bucket": "2026-09-21T11:38:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 11846,
+          "bucket": "2026-09-21T11:39:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 12684,
+          "bucket": "2026-09-21T11:40:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 14446,
+          "bucket": "2026-09-21T11:41:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 14777,
+          "bucket": "2026-09-21T11:42:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 13547,
+          "bucket": "2026-09-21T11:43:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 11688,
+          "bucket": "2026-09-21T11:44:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 445,
+          "points": 11628,
+          "bucket": "2026-09-21T11:45:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 10996,
+          "bucket": "2026-09-21T11:46:00+00:00",
+          "contributorCount": 5
+        },
+        {
+          "strokes": 444,
+          "points": 13265,
+          "bucket": "2026-09-21T11:47:00+00:00",
+          "contributorCount": 5
+        }
+      ]
+    },
+    "complexity": {
+      "meta": {
+        "key": "complexity",
+        "title": "Stroke complexity distribution",
+        "question": "Are strokes mostly short taps or long freehand curves?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$bucket",
+          "$project"
+        ],
+        "chart": "bar",
+        "notes": "$bucket produces a histogram in the database; the equivalent in SQL needs a CASE expression per band.",
+        "tags": [
+          "bucket",
+          "histogram"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582",
+            "pointCount": {
+              "$exists": true
+            }
+          }
+        },
+        {
+          "$bucket": {
+            "groupBy": "$pointCount",
+            "boundaries": [
+              0,
+              10,
+              25,
+              50,
+              100,
+              250,
+              1000
+            ],
+            "default": "1000+",
+            "output": {
+              "strokes": {
+                "$sum": 1
+              },
+              "totalPoints": {
+                "$sum": "$pointCount"
+              },
+              "avgWidth": {
+                "$avg": "$style.width"
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "minPoints": "$_id",
+            "strokes": 1,
+            "totalPoints": 1,
+            "avgWidth": {
+              "$round": [
+                "$avgWidth",
+                2
+              ]
+            }
+          }
+        }
+      ],
+      "elapsedMs": 238.14,
+      "resultCount": 6,
+      "results": [
+        {
+          "strokes": 9831,
+          "totalPoints": 53835,
+          "minPoints": 0,
+          "avgWidth": 8.58
+        },
+        {
+          "strokes": 13417,
+          "totalPoints": 200962,
+          "minPoints": 10,
+          "avgWidth": 8.85
+        },
+        {
+          "strokes": 7126,
+          "totalPoints": 263300,
+          "minPoints": 25,
+          "avgWidth": 8.71
+        },
+        {
+          "strokes": 4416,
+          "totalPoints": 274716,
+          "minPoints": 50,
+          "avgWidth": 8.61
+        },
+        {
+          "strokes": 2601,
+          "totalPoints": 372147,
+          "minPoints": 100,
+          "avgWidth": 8.83
+        },
+        {
+          "strokes": 464,
+          "totalPoints": 197537,
+          "minPoints": 250,
+          "avgWidth": 8.87
+        }
+      ]
+    },
+    "palette": {
+      "meta": {
+        "key": "palette",
+        "title": "Colour palette in use",
+        "question": "Which colours carry the most ink on the active canvas?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$group",
+          "$project",
+          "$sort",
+          "$limit"
+        ],
+        "chart": "table",
+        "notes": "Derives an 'ink' metric by multiplying stroke width by point count inside $sum.",
+        "tags": [
+          "group",
+          "computed"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582",
+            "active": true,
+            "tool": {
+              "$ne": "eraser"
+            }
+          }
+        },
+        {
+          "$group": {
+            "id": "$style.color",
+            "strokes": {
+              "$sum": 1
+            },
+            "users": {
+              "$addToSet": "$userName"
+            },
+            "totalInk": {
+              "$sum": {
+                "$multiply": [
+                  "$style.width",
+                  {
+                    "$ifNull": [
+                      "$pointCount",
+                      1
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "color": "$_id",
+            "strokes": 1,
+            "userCount": {
+              "$size": "$users"
+            },
+            "totalInk": {
+              "$round": [
+                "$totalInk",
+                0
+              ]
+            }
+          }
+        },
+        {
+          "$sort": {
+            "strokes": -1
+          }
+        },
+        {
+          "$limit": 12
+        }
+      ],
+      "elapsedMs": 187.84,
+      "resultCount": 8,
+      "results": [
+        {
+          "strokes": 4957,
+          "color": "#111827",
+          "userCount": 5,
+          "totalInk": 892187.0
+        },
+        {
+          "strokes": 4899,
+          "color": "#0891b2",
+          "userCount": 5,
+          "totalInk": 928686.0
+        },
+        {
+          "strokes": 4876,
+          "color": "#db2777",
+          "userCount": 5,
+          "totalInk": 887324.0
+        },
+        {
+          "strokes": 4868,
+          "color": "#2563eb",
+          "userCount": 5,
+          "totalInk": 909231.0
+        },
+        {
+          "strokes": 4863,
+          "color": "#7c3aed",
+          "userCount": 5,
+          "totalInk": 954545.0
+        },
+        {
+          "strokes": 4854,
+          "color": "#d97706",
+          "userCount": 5,
+          "totalInk": 942630.0
+        },
+        {
+          "strokes": 4803,
+          "color": "#dc2626",
+          "userCount": 5,
+          "totalInk": 873540.0
+        },
+        {
+          "strokes": 4732,
+          "color": "#059669",
+          "userCount": 5,
+          "totalInk": 930412.0
+        }
+      ]
+    },
+    "bounds": {
+      "meta": {
+        "key": "bounds",
+        "title": "Content bounding box",
+        "question": "What canvas region actually contains drawing?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$group",
+          "$project"
+        ],
+        "chart": "table",
+        "notes": "$min and $max over the precomputed bbox subdocument drive the 'fit to content' button without reading any point arrays.",
+        "tags": [
+          "group",
+          "geometry"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582",
+            "active": true,
+            "bbox": {
+              "$exists": true
+            }
+          }
+        },
+        {
+          "$group": {
+            "id": null,
+            "minX": {
+              "$min": "$bbox.minX"
+            },
+            "minY": {
+              "$min": "$bbox.minY"
+            },
+            "maxX": {
+              "$max": "$bbox.maxX"
+            },
+            "maxY": {
+              "$max": "$bbox.maxY"
+            },
+            "strokes": {
+              "$sum": 1
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "minX": {
+              "$round": [
+                "$minX",
+                1
+              ]
+            },
+            "minY": {
+              "$round": [
+                "$minY",
+                1
+              ]
+            },
+            "maxX": {
+              "$round": [
+                "$maxX",
+                1
+              ]
+            },
+            "maxY": {
+              "$round": [
+                "$maxY",
+                1
+              ]
+            },
+            "width": {
+              "$round": [
+                {
+                  "$subtract": [
+                    "$maxX",
+                    "$minX"
+                  ]
+                },
+                1
+              ]
+            },
+            "height": {
+              "$round": [
+                {
+                  "$subtract": [
+                    "$maxY",
+                    "$minY"
+                  ]
+                },
+                1
+              ]
+            },
+            "strokes": 1
+          }
+        }
+      ],
+      "elapsedMs": 191.3,
+      "resultCount": 1,
+      "results": [
+        {
+          "strokes": 42672,
+          "minX": -350.2,
+          "minY": -227.2,
+          "maxX": 1956.0,
+          "maxY": 1137.0,
+          "width": 2306.1,
+          "height": 1364.2
+        }
+      ]
+    },
+    "leaderboard": {
+      "meta": {
+        "key": "leaderboard",
+        "title": "Room leaderboard (joined)",
+        "question": "Across all rooms, which are the busiest?",
+        "collection": "rooms",
+        "stages": [
+          "$match",
+          "$lookup",
+          "$set",
+          "$project",
+          "$sort",
+          "$limit"
+        ],
+        "chart": "table",
+        "notes": "$lookup with a sub-pipeline aggregates strokes inside the join, demonstrating a referenced relationship without embedding.",
+        "tags": [
+          "lookup",
+          "join"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "isArchived": false
+          }
+        },
+        {
+          "$lookup": {
+            "from": "strokes",
+            "localField": "_id",
+            "foreignField": "roomId",
+            "as": "strokeStats",
+            "pipeline": [
+              {
+                "$group": {
+                  "id": null,
+                  "total": {
+                    "$sum": 1
+                  },
+                  "active": {
+                    "$sum": {
+                      "$cond": [
+                        "$active",
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "points": {
+                    "$sum": {
+                      "$ifNull": [
+                        "$pointCount",
+                        0
+                      ]
+                    }
+                  },
+                  "contributors": {
+                    "$addToSet": "$userId"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "$set": {
+            "stats": {
+              "$first": "$strokeStats"
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "code": 1,
+            "name": 1,
+            "createdAt": 1,
+            "participantCount": {
+              "$size": "$participants"
+            },
+            "totalStrokes": {
+              "$ifNull": [
+                "$stats.total",
+                0
+              ]
+            },
+            "activeStrokes": {
+              "$ifNull": [
+                "$stats.active",
+                0
+              ]
+            },
+            "totalPoints": {
+              "$ifNull": [
+                "$stats.points",
+                0
+              ]
+            },
+            "contributorCount": {
+              "$size": {
+                "$ifNull": [
+                  "$stats.contributors",
+                  []
+                ]
+              }
+            }
+          }
+        },
+        {
+          "$sort": {
+            "totalStrokes": -1
+          }
+        },
+        {
+          "$limit": 20
+        }
+      ],
+      "elapsedMs": 353.98,
+      "resultCount": 8,
+      "results": [
+        {
+          "code": "LNCSJ5",
+          "name": "Seeded board 1",
+          "createdAt": "2026-09-21T14:58:51.618000+00:00",
+          "participantCount": 5,
+          "totalStrokes": 48000,
+          "activeStrokes": 42672,
+          "totalPoints": 1362497,
+          "contributorCount": 5
+        },
+        {
+          "code": "S36UAR",
+          "name": "Seeded board 2",
+          "createdAt": "2026-09-21T14:58:58.159000+00:00",
+          "participantCount": 5,
+          "totalStrokes": 8000,
+          "activeStrokes": 7182,
+          "totalPoints": 226829,
+          "contributorCount": 5
+        },
+        {
+          "code": "K9KE5J",
+          "name": "Seeded board 3",
+          "createdAt": "2026-09-21T14:58:59.255000+00:00",
+          "participantCount": 5,
+          "totalStrokes": 8000,
+          "activeStrokes": 7125,
+          "totalPoints": 232989,
+          "contributorCount": 5
+        },
+        {
+          "code": "TEJWCQ",
+          "name": "Seeded board 4",
+          "createdAt": "2026-09-21T14:59:00.388000+00:00",
+          "participantCount": 5,
+          "totalStrokes": 8000,
+          "activeStrokes": 7134,
+          "totalPoints": 234847,
+          "contributorCount": 5
+        },
+        {
+          "code": "SFBFLQ",
+          "name": "Seeded board 5",
+          "createdAt": "2026-09-21T14:59:01.592000+00:00",
+          "participantCount": 5,
+          "totalStrokes": 8000,
+          "activeStrokes": 7188,
+          "totalPoints": 225634,
+          "contributorCount": 5
+        },
+        {
+          "code": "FLPVGJ",
+          "name": "Devesh's board",
+          "createdAt": "2026-09-21T15:19:36.169000+00:00",
+          "participantCount": 0,
+          "totalStrokes": 10,
+          "activeStrokes": 10,
+          "totalPoints": 191,
+          "contributorCount": 2
+        },
+        {
+          "code": "49C5NL",
+          "name": "Devesh's board",
+          "createdAt": "2026-09-21T15:10:23.349000+00:00",
+          "participantCount": 0,
+          "totalStrokes": 9,
+          "activeStrokes": 7,
+          "totalPoints": 158,
+          "contributorCount": 2
+        },
+        {
+          "code": "SNVJVW",
+          "name": "CRUD verification board",
+          "createdAt": "2026-09-21T15:31:55.236000+00:00",
+          "participantCount": 0,
+          "totalStrokes": 0,
+          "activeStrokes": 0,
+          "totalPoints": 0,
+          "contributorCount": 0
+        }
+      ]
+    },
+    "dashboard": {
+      "meta": {
+        "key": "dashboard",
+        "title": "Single-request dashboard",
+        "question": "Can the whole analytics panel load in one query?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$facet"
+        ],
+        "chart": "facet",
+        "notes": "$facet evaluates four sub-pipelines over one matched set, replacing four separate round trips to the database.",
+        "tags": [
+          "facet",
+          "optimisation"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582"
+          }
+        },
+        {
+          "$facet": {
+            "totals": [
+              {
+                "$group": {
+                  "id": null,
+                  "strokes": {
+                    "$sum": 1
+                  },
+                  "active": {
+                    "$sum": {
+                      "$cond": [
+                        "$active",
+                        1,
+                        0
+                      ]
+                    }
+                  },
+                  "points": {
+                    "$sum": {
+                      "$ifNull": [
+                        "$pointCount",
+                        0
+                      ]
+                    }
+                  },
+                  "contributors": {
+                    "$addToSet": "$userId"
+                  },
+                  "maxSeq": {
+                    "$max": "$seq"
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "id": 0,
+                  "strokes": 1,
+                  "active": 1,
+                  "points": 1,
+                  "maxSeq": 1,
+                  "contributorCount": {
+                    "$size": "$contributors"
+                  }
+                }
+              }
+            ],
+            "byTool": [
+              {
+                "$group": {
+                  "id": "$tool",
+                  "count": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "id": 0,
+                  "tool": "$_id",
+                  "count": 1
+                }
+              },
+              {
+                "$sort": {
+                  "count": -1
+                }
+              }
+            ],
+            "topContributors": [
+              {
+                "$group": {
+                  "id": "$userName",
+                  "strokes": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "id": 0,
+                  "userName": "$_id",
+                  "strokes": 1
+                }
+              },
+              {
+                "$sort": {
+                  "strokes": -1
+                }
+              },
+              {
+                "$limit": 5
+              }
+            ],
+            "recent": [
+              {
+                "$sort": {
+                  "seq": -1
+                }
+              },
+              {
+                "$limit": 5
+              },
+              {
+                "$project": {
+                  "id": 0,
+                  "seq": 1,
+                  "tool": 1,
+                  "userName": 1,
+                  "active": 1,
+                  "color": "$style.color"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "elapsedMs": 419.96,
+      "resultCount": 1,
+      "results": [
+        {
+          "totals": [
+            {
+              "strokes": 48000,
+              "active": 42672,
+              "points": 1362497,
+              "maxSeq": 48000,
+              "contributorCount": 5
+            }
+          ],
+          "byTool": [
+            {
+              "count": 32598,
+              "tool": "pen"
+            },
+            {
+              "count": 4272,
+              "tool": "eraser"
+            },
+            {
+              "count": 3898,
+              "tool": "rect"
+            },
+            {
+              "count": 3341,
+              "tool": "ellipse"
+            },
+            {
+              "count": 2906,
+              "tool": "line"
+            },
+            {
+              "count": 985,
+              "tool": "text"
+            }
+          ],
+          "topContributors": [
+            {
+              "strokes": 19263,
+              "userName": "Devesh"
+            },
+            {
+              "strokes": 12807,
+              "userName": "Prakrit"
+            },
+            {
+              "strokes": 9502,
+              "userName": "Lakshya"
+            },
+            {
+              "strokes": 3269,
+              "userName": "Meera"
+            },
+            {
+              "strokes": 3159,
+              "userName": "Aarav"
+            }
+          ],
+          "recent": [
+            {
+              "seq": 48000,
+              "userName": "Meera",
+              "tool": "pen",
+              "active": true,
+              "color": "#7c3aed"
+            },
+            {
+              "seq": 47999,
+              "userName": "Lakshya",
+              "tool": "pen",
+              "active": true,
+              "color": "#db2777"
+            },
+            {
+              "seq": 47998,
+              "userName": "Devesh",
+              "tool": "pen",
+              "active": true,
+              "color": "#059669"
+            },
+            {
+              "seq": 47997,
+              "userName": "Prakrit",
+              "tool": "pen",
+              "active": true,
+              "color": "#0891b2"
+            },
+            {
+              "seq": 47996,
+              "userName": "Devesh",
+              "tool": "rect",
+              "active": true,
+              "color": "#d97706"
+            }
+          ]
+        }
+      ]
+    },
+    "storage": {
+      "meta": {
+        "key": "storage",
+        "title": "Storage footprint by tool",
+        "question": "How many bytes does each kind of stroke document cost?",
+        "collection": "strokes",
+        "stages": [
+          "$match",
+          "$set",
+          "$group",
+          "$project",
+          "$sort"
+        ],
+        "chart": "bar",
+        "notes": "$bsonSize measures real on-disk document size, which grounds the capacity estimate for 100k strokes.",
+        "tags": [
+          "group",
+          "capacity"
+        ]
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "roomId": "6ab1462b336665eb541e4582"
+          }
+        },
+        {
+          "$set": {
+            "docBytes": {
+              "$bsonSize": "$$ROOT"
+            }
+          }
+        },
+        {
+          "$group": {
+            "id": "$tool",
+            "docs": {
+              "$sum": 1
+            },
+            "totalBytes": {
+              "$sum": "$docBytes"
+            },
+            "avgBytes": {
+              "$avg": "$docBytes"
+            },
+            "maxBytes": {
+              "$max": "$docBytes"
+            }
+          }
+        },
+        {
+          "$project": {
+            "id": 0,
+            "tool": "$_id",
+            "docs": 1,
+            "totalKB": {
+              "$round": [
+                {
+                  "$divide": [
+                    "$totalBytes",
+                    1024
+                  ]
+                },
+                1
+              ]
+            },
+            "avgBytes": {
+              "$round": [
+                "$avgBytes",
+                0
+              ]
+            },
+            "maxBytes": 1
+          }
+        },
+        {
+          "$sort": {
+            "totalKB": -1
+          }
+        }
+      ],
+      "elapsedMs": 219.48,
+      "resultCount": 6,
+      "results": [
+        {
+          "docs": 32598,
+          "maxBytes": 26086,
+          "tool": "pen",
+          "totalKB": 61167.0,
+          "avgBytes": 1921.0
+        },
+        {
+          "docs": 4272,
+          "maxBytes": 25983,
+          "tool": "eraser",
+          "totalKB": 7976.7,
+          "avgBytes": 1912.0
+        },
+        {
+          "docs": 3898,
+          "maxBytes": 428,
+          "tool": "rect",
+          "totalKB": 1545.1,
+          "avgBytes": 406.0
+        },
+        {
+          "docs": 3341,
+          "maxBytes": 431,
+          "tool": "ellipse",
+          "totalKB": 1334.6,
+          "avgBytes": 409.0
+        },
+        {
+          "docs": 2906,
+          "maxBytes": 428,
+          "tool": "line",
+          "totalKB": 1152.3,
+          "avgBytes": 406.0
+        },
+        {
+          "docs": 985,
+          "maxBytes": 503,
+          "tool": "text",
+          "totalKB": 454.0,
+          "avgBytes": 472.0
+        }
+      ]
+    }
+  },
+  "benchmark": {
+    "undo_lookup": {
+      "why": "Behind every undo: the newest active stroke for one user. Sorted and limited to one document, so the index either seeks straight to it or the server sorts the whole room.",
+      "withoutIndex": {
+        "ms": 59.43,
+        "scanType": "COLLSCAN",
+        "docsExamined": 80019,
+        "error": null
+      },
+      "withIndex": {
+        "ms": 2.56,
+        "scanType": "IXSCAN",
+        "indexName": "ix_stroke_undo",
+        "docsExamined": 1,
+        "error": null
+      },
+      "speedup": 23.2,
+      "docsExaminedReduction": 80018,
+      "docsReturned": 1
+    },
+    "incremental_join": {
+      "why": "Joining a room that already has a snapshot: only strokes newer than the snapshot sequence are replayed.",
+      "withoutIndex": {
+        "ms": 81.09,
+        "scanType": "COLLSCAN",
+        "docsExamined": 80019,
+        "error": null
+      },
+      "withIndex": {
+        "ms": 22.13,
+        "scanType": "IXSCAN",
+        "indexName": "ix_stroke_replay",
+        "docsExamined": 500,
+        "error": null
+      },
+      "speedup": 3.7,
+      "docsExaminedReduction": 79519,
+      "docsReturned": 438
+    },
+    "history_metadata": {
+      "why": "Ordered pass over the whole room reading metadata only. The point arrays are projected away, so this isolates the cost of sorting.",
+      "withoutIndex": {
+        "ms": 305.07,
+        "scanType": "COLLSCAN",
+        "docsExamined": 80019,
+        "error": null
+      },
+      "withIndex": {
+        "ms": 274.5,
+        "scanType": "IXSCAN",
+        "indexName": "ix_stroke_replay",
+        "docsExamined": 48000,
+        "error": null
+      },
+      "speedup": 1.1,
+      "docsExaminedReduction": 32019,
+      "docsReturned": 42672
+    },
+    "tool_count": {
+      "why": "How many pen strokes exist in this room. A count never needs the documents themselves, so the index answers it outright.",
+      "withoutIndex": {
+        "ms": 52.71,
+        "scanType": "COLLSCAN",
+        "docsExamined": 80019,
+        "error": null
+      },
+      "withIndex": {
+        "ms": 11.01,
+        "scanType": "COUNT_SCAN",
+        "indexName": "ix_stroke_tool",
+        "docsExamined": 0,
+        "error": null
+      },
+      "speedup": 4.8,
+      "docsExaminedReduction": 80019,
+      "docsReturned": 32598
+    },
+    "covered_query": {
+      "why": "Every field requested is already in ix_stroke_tool, so the query is covered: MongoDB answers it from index keys and examines zero documents.",
+      "withoutIndex": {
+        "ms": 156.89,
+        "scanType": "COLLSCAN",
+        "docsExamined": 80019,
+        "error": null
+      },
+      "withIndex": {
+        "ms": 94.45,
+        "scanType": "IXSCAN",
+        "indexName": "ix_stroke_tool",
+        "docsExamined": 0,
+        "error": null
+      },
+      "speedup": 1.7,
+      "docsExaminedReduction": 80019,
+      "docsReturned": 32598
+    }
+  },
+  "crudTranscript": null
+}

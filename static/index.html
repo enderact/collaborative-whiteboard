@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collaborative Whiteboard · NoSQL Project NS02</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ============================ Lobby ============================ -->
+<section id="lobby" class="lobby">
+  <div class="lobby-card">
+    <h1>Real-Time Collaborative Whiteboard</h1>
+    <p class="sub">BCSE406L · NoSQL Database · Batch NS02 · MongoDB + Redis</p>
+
+    <label class="field">
+      <span>Your name</span>
+      <input id="nameInput" type="text" placeholder="e.g. Devesh" maxlength="24">
+    </label>
+
+    <div class="lobby-actions">
+      <button id="createBtn" class="btn primary">Create new board</button>
+      <div class="or">or</div>
+      <div class="join-row">
+        <input id="codeInput" type="text" placeholder="ROOM CODE" maxlength="6" autocomplete="off">
+        <button id="joinBtn" class="btn">Join</button>
+      </div>
+    </div>
+
+    <div id="lobbyError" class="error" hidden></div>
+
+    <div class="recent">
+      <h3>Recent boards</h3>
+      <ul id="recentList"><li class="muted">loading…</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ Board ============================ -->
+<section id="board" class="board" hidden>
+
+  <header class="topbar">
+    <div class="brand">Whiteboard</div>
+    <div class="room-meta">
+      <span class="code-chip" id="roomCode">------</span>
+      <input id="roomName" class="room-name" maxlength="60" title="Rename the board (PATCH /api/rooms/{code})">
+    </div>
+    <div class="topbar-right">
+      <span class="badge" id="instanceBadge" title="Which backend process served this socket">instance —</span>
+      <span class="badge" id="statusBadge">connecting…</span>
+      <span class="badge" id="seqBadge" title="Latest sequence number issued by Redis INCR">seq 0</span>
+      <button id="analyticsBtn" class="btn small">Analytics</button>
+      <button id="leaveBtn" class="btn small ghost">Leave</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <!-- ---------------------- Tool rail ---------------------- -->
+    <aside class="rail">
+      <div class="rail-group">
+        <div class="rail-label">Tools</div>
+        <div class="tools">
+          <button class="tool active" data-tool="pen"     title="Pen (P)">✏️</button>
+          <button class="tool"        data-tool="eraser"  title="Eraser (E)">🩹</button>
+          <button class="tool"        data-tool="line"    title="Line (L)">╱</button>
+          <button class="tool"        data-tool="rect"    title="Rectangle (R)">▭</button>
+          <button class="tool"        data-tool="ellipse" title="Ellipse (O)">◯</button>
+          <button class="tool"        data-tool="text"    title="Text (T)">T</button>
+        </div>
+      </div>
+
+      <div class="rail-group">
+        <div class="rail-label">Colour</div>
+        <div class="swatches" id="swatches"></div>
+      </div>
+
+      <div class="rail-group">
+        <div class="rail-label">Width <b id="widthValue">3</b></div>
+        <input id="widthRange" type="range" min="1" max="40" value="3">
+      </div>
+
+      <div class="rail-group">
+        <div class="rail-label">History</div>
+        <div class="stack">
+          <button id="undoBtn" class="btn small">↶ Undo</button>
+          <button id="redoBtn" class="btn small">↷ Redo</button>
+          <button id="clearBtn" class="btn small danger">Clear board</button>
+        </div>
+        <p class="hint">Undo flips <code>active:false</code> on your newest stroke — a soft delete, scoped to you.</p>
+      </div>
+
+      <div class="rail-group">
+        <div class="rail-label">Maintenance</div>
+        <div class="stack">
+          <button id="snapshotBtn" class="btn small">Save snapshot</button>
+          <button id="compactBtn" class="btn small">Compact undone</button>
+          <button id="fitBtn" class="btn small">Fit to content</button>
+        </div>
+        <p class="hint" id="snapshotHint">No snapshot yet.</p>
+      </div>
+
+      <div class="rail-group grow">
+        <div class="rail-label">In this room</div>
+        <ul class="people" id="peopleList"></ul>
+      </div>
+    </aside>
+
+    <!-- ---------------------- Canvas ---------------------- -->
+    <main class="canvas-wrap" id="canvasWrap">
+      <canvas id="canvas"></canvas>
+      <div class="cursors" id="cursorLayer"></div>
+      <div class="toast" id="toast" hidden></div>
+    </main>
+
+    <!-- ---------------------- Analytics ---------------------- -->
+    <aside class="panel" id="panel" hidden>
+      <div class="panel-head">
+        <h2>Aggregation pipelines</h2>
+        <button id="panelClose" class="btn small ghost">✕</button>
+      </div>
+
+      <div class="panel-tabs">
+        <button class="ptab active" data-view="queries">Queries</button>
+        <button class="ptab" data-view="indexes">Indexes</button>
+        <button class="ptab" data-view="storage">Storage</button>
+      </div>
+
+      <!-- Queries view -->
+      <div class="panel-view" data-view="queries">
+        <select id="pipelineSelect" class="select"></select>
+        <div class="pipeline-meta" id="pipelineMeta"></div>
+        <div class="panel-actions">
+          <button id="runPipelineBtn" class="btn small primary">Run</button>
+          <button id="explainPipelineBtn" class="btn small">Explain</button>
+          <button id="togglePipelineBtn" class="btn small ghost">Show pipeline</button>
+        </div>
+        <pre id="pipelineSource" class="code" hidden></pre>
+        <div id="pipelineResult" class="result"></div>
+      </div>
+
+      <!-- Indexes view -->
+      <div class="panel-view" data-view="indexes" hidden>
+        <p class="hint">Runs the join query, the undo query, and the tool filter with the
+        indexes dropped, then again with them rebuilt.</p>
+        <button id="benchBtn" class="btn small primary">Run index benchmark</button>
+        <div id="benchResult" class="result"></div>
+        <div id="indexList" class="result"></div>
+      </div>
+
+      <!-- Storage view -->
+      <div class="panel-view" data-view="storage" hidden>
+        <button id="statsBtn" class="btn small primary">Refresh collection stats</button>
+        <div id="statsResult" class="result"></div>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
